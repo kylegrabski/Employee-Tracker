@@ -198,6 +198,21 @@ function addRole(){
       
     }
   })
+
+  let existingRoles = [];
+    connection.query("SELECT * FROM role", function (err, data){
+      if (err) console.log(err, " FROM SELECTING ROLES IN addRole")
+      for (let i = 0; i < data.length; i++) {
+        existingRoles.push(data[i].title)
+        // console.log(data[i].title)
+        // console.log(existingRoles, " EXISITNG ROLE")
+      }
+    })
+    // console.log(existingRoles, " OUTSIDE OF LOOP")
+ 
+    // IF role exists, throw error and return to main menu
+
+    
   inquirer.prompt([
     {
       type: "input",
@@ -218,8 +233,14 @@ function addRole(){
   ])
   .then(function (response){
     console.log(response);
-    const query = 
-    "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);";
+    
+    for (let i = 0; i < existingRoles.length; i++) {
+      if (existingRoles[i] === response.title){
+        console.log("That Roles Already Exists")
+        return init();
+      }
+      
+    }
 
     // converting the salaray response into an INT to be able to
     // insert into MySQL database
@@ -234,6 +255,12 @@ function addRole(){
     }else if (response.department === "Executive"){
       department_id = 3
     }
+
+    // Gathers all existing roles into an array
+    
+
+    const query = 
+    "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);";
 
     const role = connection.query(query, [response.title, salary, department_id], function (err, data){
       if (err) console.log(err, "ERROR INSERTING NEW ROLE IN role TABLE")
