@@ -38,6 +38,7 @@ function init() {
           "View All Departments",
           "Add An Employee",
           "Add A Role",
+          "Add A Department",
           "Exit",
         ],
       },
@@ -243,6 +244,13 @@ function addRole(){
 }
 
 function addDepartment(){
+  let existingDepartments = [];
+  connection.query("SELECT * FROM department", function (err, data){
+    if (err) console.log(err, " FROM SELECTING TITLES FROM DEPARTMENT");
+    for (let i = 0; i < data.length; i++) {
+      existingDepartments.push(data[i].name)
+    }
+  })
   inquirer.prompt([
     {
       type: "input",
@@ -250,5 +258,25 @@ function addDepartment(){
       message: "What Is The Name Of The Department You Want To Add?: "
     }
   ])
-  
+  .then(function (response){
+    console.log(response.title);
+    console.log(existingDepartments);
+   
+    // IF department exists, throw error and return to main menu
+    for (let i = 0; i < existingDepartments.length; i++) {
+      if (existingDepartments[i] === response.title){
+        console.log("That Department Already Exists")
+        return init()
+      }
+      
+    }
+    const query =
+    "INSERT INTO department (name) VALUES (?);";
+
+    const department = connection.query(query, [response.title], function (err, data) {
+      if (err) console.log(err, " ERROR INSERTING NEW DEPARTMENT")
+      console.log("Added", response.title, "Department")
+      init();
+    })
+  })
 }
