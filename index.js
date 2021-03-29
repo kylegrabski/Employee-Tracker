@@ -7,6 +7,12 @@ const cTable = require("console.table");
 // const { viewDepartments } = require("./script/view_functions.js");
 
 
+// have data in global scope
+
+const roleData = [];
+const departmentData = [];
+const employeeData = [];
+
 // The Manager ID is equal to the employee ID. So The manager id of 2 means the 
 // employees manager is the employee with the employee ID of 2
 
@@ -37,6 +43,7 @@ function init() {
         name: "mainMenu",
         message: "What would you like to do?",
         choices: [
+          "View All",
           "View All Employees",
           "View All Roles",
           "View All Departments",
@@ -49,6 +56,9 @@ function init() {
     ])
     .then(function (response) {
       switch (response.mainMenu) {
+        case "View All":
+          viewAll();
+          break;
         case "View All Employees":
           viewEmployees();
           break;
@@ -76,6 +86,16 @@ function init() {
 }
 
 // --------------View Functions------------------
+
+function viewAll (){
+  connection.query(
+    "SELECT * FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id;",
+    function (err, data) {
+      console.table(data);
+      init();
+    }
+  )
+}
 
 function viewEmployees() {
   connection.query(
@@ -108,8 +128,8 @@ function viewDepartments() {
   );
 }
 
-// -----------------INSERT FUNCTIONS-----------------------
 
+// -----------------INSERT FUNCTIONS-----------------------
 // ------------------ADD EMPLOYEE FUNCTION-----------------
 function addEmployee() {
     // will update the Employees Role whenever a new Role is created
@@ -117,8 +137,11 @@ function addEmployee() {
     connection.query("SELECT * FROM role", function(err, data){
             if (err) console.log(err, " FROM SELECTING ROLES IN addEmployee");
             for (let i = 0; i < data.length; i++) {
+                // Empty roleData everytime it pushes new data
+                let roleData = [];
                 titlesDB.push(data[i].title)
-                
+                // Push all role data into global scoped roleData array
+                roleData.push(data[i])
             }
     })
   inquirer
@@ -328,3 +351,6 @@ function addDepartment(){
     })
   })
 }
+
+
+// -----------------FUNCTION TO GET UPDATED EMPLOYEES, ROLES, AND DEPARTMENTS--------------
