@@ -1,7 +1,11 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
-const table = cTable;
+// GET EXPORT TO WORK
+// const { viewEmployees } = require("./script/view_functions.js");
+// const { viewRoles } = require("./script/view_functions.js");
+// const { viewDepartments } = require("./script/view_functions.js");
+
 
 // The Manager ID is equal to the employee ID. So The manager id of 2 means the 
 // employees manager is the employee with the employee ID of 2
@@ -104,8 +108,9 @@ function viewDepartments() {
   );
 }
 
-// ----------INSERT FUNCTIONS--------------------
+// -----------------INSERT FUNCTIONS-----------------------
 
+// ------------------ADD EMPLOYEE FUNCTION-----------------
 function addEmployee() {
     // will update the Employees Role whenever a new Role is created
     let titlesDB = [];
@@ -160,6 +165,7 @@ function addEmployee() {
     //     case "Copy Writer":
     //         return roleID = 7, manager = 2;            
     //    }
+
     if (response.title === "Sales Lead"){
         roleID = 4
         manager = 3
@@ -172,6 +178,13 @@ function addEmployee() {
     }else if(response.title === "Copywriter"){
         roleID = 7
         manager = 2
+    }else if(response.title === "Art Director") {
+      roleID = 8
+      manager = null
+    }
+    else {
+      role = null
+      manager = null
     }
       const employee = connection.query(query, [response.firstName, response.lastName, roleID, manager],
         function (err, data) {
@@ -188,6 +201,7 @@ function addEmployee() {
     });
 }
 
+// ------------------ADD ROLE FUNCTION--------------------------------
 function addRole(){
   // will update the department_id whenever a new Department is created
   let departmentDB = [];
@@ -254,6 +268,13 @@ function addRole(){
       department_id = 2
     }else if (response.department === "Executive"){
       department_id = 3
+    }else if (response.department === "Art"){
+      department_id = 4
+    }else if (response.department === "Communication"){
+      department_id = 5
+    }
+    else {
+      department_id = departmentDB.length - 1;
     }
 
     // Gathers all existing roles into an array
