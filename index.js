@@ -1,12 +1,9 @@
-const mysql = require("mysql");
-const connection = require("./sql/index")
+const connection = require("./sql")
 const inquirer = require("inquirer");
 // GET EXPORT TO WORK
-const {viewEmployees} = require("./controllers/view");
-const {viewRoles} = require("./controllers/view");
-const {viewDepartments} = require("./controllers/view");
-const {addEmployee} = require("./controllers/create")
-const {addDepartment} = require("./controllers/create")
+const {viewEmployees, viewRoles, viewDepartments } = require("./controllers/view");
+const {addEmployee, addDepartment, addRole} = require("./controllers/create")
+
 
 
 // The Manager ID is equal to the employee ID. So The manager id of 2 means the
