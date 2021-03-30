@@ -1,72 +1,62 @@
-const mysql = require("mysql");
+const connection = require("./config/dbconfig.js");
 const inquirer = require("inquirer");
-const cTable = require("console.table");
 // GET EXPORT TO WORK
-// const { viewEmployees } = require("./script/view_functions.js");
-// const { viewRoles } = require("./script/view_functions.js");
-// const { viewDepartments } = require("./script/view_functions.js");
+const viewEmployees = require("./controllers/view.js");
+
 
 
 // have data in global scope
 
 const roleData = [];
 const departmentData = [];
-const employeeData = [];
+const employeeData = []; 
+
 
 // The Manager ID is equal to the employee ID. So The manager id of 2 means the 
 // employees manager is the employee with the employee ID of 2
+// @ ToDO create a manager column in Department to make it easier to read who the manager is
 
-const connection = mysql.createConnection({
-  host: "localhost",
 
-  port: 3306,
 
-  user: "root",
+// connection.connect((err) => {
+//   if (err) throw err;
+//   console.log(`connected as id ${connection.threadId}`);
 
-  password: "rootroot",
-  database: "employeeDB",
-});
+// });
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log(`connected as id ${connection.threadId}`);
-
-  init();
-});
 
 // @ToDo create ASCII art on load up
-function init() {
-  inquirer
+const init = async () => {
+  console.log("WELCOME TO THE MENU")
+  await inquirer
     .prompt([
       {
         type: "list",
         name: "mainMenu",
         message: "What would you like to do?",
         choices: [
-          "View All",
           "View All Employees",
           "View All Roles",
           "View All Departments",
           "Add An Employee",
           "Add A Role",
           "Add A Department",
+          "Delete An Employee From Database",
           "Exit",
         ],
       },
     ])
     .then(function (response) {
       switch (response.mainMenu) {
-        case "View All":
-          viewAll();
-          break;
         case "View All Employees":
           viewEmployees();
+          init();
           break;
         case "View All Roles":
-          viewRoles();
+          view.viewRoles(init);
           break;
         case "View All Departments":
-          viewDepartments();
+          view.viewDepartments(init);
           break;
         case "Add An Employee":
           addEmployee();
@@ -77,9 +67,10 @@ function init() {
         case "Add A Department":
           addDepartment();
           break;
+        case "Delete An Employee From Database":
+          deleteEmployee();
+          break;
         case "Exit":
-          // @ ToDo fix end function
-          // Error: Cannot enqueue Quit after invoking quit.
           connection.end();
       }
     });
@@ -87,49 +78,40 @@ function init() {
 
 // --------------View Functions------------------
 
-function viewAll (){
-  connection.query(
-    "SELECT * FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id;",
-    function (err, data) {
-      console.table(data);
-      init();
-    }
-  )
-}
+// function viewEmployees() {
+//   connection.query(
+//     "SELECT * FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id;",
+//     function (err, data) {
+//       console.table(data);
+//       init();
+//     }
+//   );
+// }
 
-function viewEmployees() {
-  connection.query(
-    "SELECT * FROM employee INNER JOIN role ON employee.role_id = role.id;",
-    function (err, data) {
-      console.table(data);
-      init();
-    }
-  );
-}
+// function viewRoles() {
+//   connection.query(
+//     "SELECT title, salary, name FROM role INNER JOIN department ON role.department_id = department.id;",
+//     function (err, data) {
+//       console.table(data);
+//       init();
+//     }
+//   );
+// }
 
-function viewRoles() {
-  connection.query(
-    "SELECT title, salary, name FROM role INNER JOIN department ON role.department_id = department.id;",
-    function (err, data) {
-      console.table(data);
-      init();
-    }
-  );
-}
-
-function viewDepartments() {
-  connection.query(
-    // "SELECT name, title FROM department INNER JOIN role ON department.id = role.department_id;",
-    "SELECT * FROM department;",
-    function (err, data) {
-      console.table(data);
-      init();
-    }
-  );
-}
+// function viewDepartments() {
+//   connection.query(
+//     // "SELECT name, title FROM department INNER JOIN role ON department.id = role.department_id;",
+//     "SELECT * FROM department;",
+//     function (err, data) {
+//       console.table(data);
+//       init();
+//     }
+//   );
+// }
 
 
 // -----------------INSERT FUNCTIONS-----------------------
+
 // ------------------ADD EMPLOYEE FUNCTION-----------------
 function addEmployee() {
     // will update the Employees Role whenever a new Role is created
@@ -236,19 +218,15 @@ function addRole(){
     }
   })
 
-  let existingRoles = [];
-    connection.query("SELECT * FROM role", function (err, data){
-      if (err) console.log(err, " FROM SELECTING ROLES IN addRole")
-      for (let i = 0; i < data.length; i++) {
-        existingRoles.push(data[i].title)
-        // console.log(data[i].title)
-        // console.log(existingRoles, " EXISITNG ROLE")
-      }
-    })
-    // console.log(existingRoles, " OUTSIDE OF LOOP")
- 
-    // IF role exists, throw error and return to main menu
-
+  // let existingRoles = [];
+  //   connection.query("SELECT * FROM role", function (err, data){
+  //     if (err) console.log(err, " FROM SELECTING ROLES IN addRole")
+  //     for (let i = 0; i < data.length; i++) {
+  //       existingRoles.push(data[i].title)
+    
+  //     }
+  //   })
+  
     
   inquirer.prompt([
     {
@@ -353,4 +331,59 @@ function addDepartment(){
 }
 
 
-// -----------------FUNCTION TO GET UPDATED EMPLOYEES, ROLES, AND DEPARTMENTS--------------
+// --------------------------UPDATE FUNCTIONS-------------------------
+
+
+// --------------------------GET CURRENT DATA------------------------
+function getRoleData (){
+  roleData = [],
+  connection.query("SELECT * FROM role", function (err, data){
+    if (err) console.log(err, " COLLECTING ROLE DATA");
+    for (let i = 0; i < data.length; i++) {
+      roleData.push(data[i])
+    }
+  })
+}
+
+function getDepartmentData (){
+  departmentData = [],
+  connection.query("SELECT * FROM department", function (err, data){
+    if (err) console.log(err, " COLLECTING DEPARTMENT DATA");
+    for (let i = 0; i < data.length; i++) {
+      departmentData.push(data[i])
+    }
+  })
+}
+
+function getEmployeeData (){
+  employeeData = [],
+  connection.query("SELECT * FROM employee", function (err, data){
+    if (err) console.log(err, " COLLECTING EMPLOYEE DATA");
+    for (let i = 0; i < data.length; i++) {
+      employeeData.push(data[i])
+    }
+  })
+}
+
+
+
+
+// ---------------------------DELETE FUNCTIONS------------------------
+
+function deleteEmployee (){
+
+  connection.query("SELECT * FROM employee", function(err, data){
+    if (err) console.log(err, " FROM DELETE EMPLOYEE");
+    
+  })
+
+  inquirer.prompt([
+    {
+      type: "list",
+      name: "deleteEmployee",
+      message: "Select The Employee You Wish To Delete:",
+      choices: employees
+    }
+  ])
+}
+init();
