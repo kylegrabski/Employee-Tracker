@@ -16,6 +16,7 @@ function addEmployee(callBack) {
       roleData.push(data[i]);
     }
   });
+
   inquirer
     .prompt([
       {
@@ -40,12 +41,10 @@ function addEmployee(callBack) {
       const query =
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);";
 
-      // @ ToDo create For Loop to assign roleID and manager
-      // based on what user chooses instead of hard coding. WONT SCALE
       let roleID = 0;
       let manager = 0;
 
-      // @ToDo FIX ROLE ID SO IT CHANGES WITH CREATED ROLE
+      // @ToDo HAVE MANAGER ID UPDATE AS WELL
       for (let j = 0; j < roleData.length; j++) {
         if(roleData[j].title === response.title){
           roleID = roleData[j].id 
@@ -74,13 +73,14 @@ function addEmployee(callBack) {
 function addRole(callBack) {
   // will update the department_id whenever a new Department is created
   let departmentDB = [];
+  let departmentData = [];
   connection.query("SELECT * FROM department", function (err, data) {
     if (err) console.log(err, " FROM SELECTING DEPARTMENT IN add Role");
     for (let i = 0; i < data.length; i++) {
       departmentDB.push(data[i].name);
+      departmentData.push(data[i]);
     }
   });
-
   let existingRoles = [];
   connection.query("SELECT * FROM role", function (err, data) {
     if (err) console.log(err, " FROM SELECTING ROLES IN addRole");
@@ -114,7 +114,7 @@ function addRole(callBack) {
       for (let i = 0; i < existingRoles.length; i++) {
         if (existingRoles[i] === response.title) {
           console.log("That Roles Already Exists");
-          return init();
+          return callBack();
         }
       }
 
@@ -123,20 +123,30 @@ function addRole(callBack) {
       let salary = parseInt(response.salary);
 
       // @ ToDo create For Loop to assign department_ID based on what user chooses instead of hardcoding. WONT SCALE.
+
+      // if response.department === department[j].name
       let department_id = 0;
-      if (response.department === "Sales") {
-        department_id = 1;
-      } else if (response.department === "Creative") {
-        department_id = 2;
-      } else if (response.department === "Executive") {
-        department_id = 3;
-      } else if (response.department === "Art") {
-        department_id = 4;
-      } else if (response.department === "Communication") {
-        department_id = 5;
-      } else {
-        department_id = departmentDB.length - 1;
-      }
+      console.log(departmentData)
+        for (let j = 0; j < departmentData.length; j++) {
+          if(departmentData[j].name === response.department){
+            department_id = departmentData[j].id
+          }
+          
+        }
+
+      // if (response.department === "Sales") {
+      //   department_id = 1;
+      // } else if (response.department === "Creative") {
+      //   department_id = 2;
+      // } else if (response.department === "Executive") {
+      //   department_id = 3;
+      // } else if (response.department === "Art") {
+      //   department_id = 4;
+      // } else if (response.department === "Communication") {
+      //   department_id = 5;
+      // } else {
+      //   department_id = departmentDB.length - 1;
+      // }
 
       const query =
         "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);";
