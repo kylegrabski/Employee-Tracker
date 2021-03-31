@@ -6,11 +6,11 @@ const inquirer = require("inquirer");
 function addEmployee(callBack) {
   // will update the Employees Role whenever a new Role is created
   let titlesDB = [];
+  let roleData = [];
   connection.query("SELECT * FROM role", function (err, data) {
     if (err) console.log(err, " FROM SELECTING ROLES IN addEmployee");
     for (let i = 0; i < data.length; i++) {
-      // Empty roleData everytime it pushes new data
-      let roleData = [];
+      // Empty roleData everytime it pushes new data  
       titlesDB.push(data[i].title);
       // Push all role data into global scoped roleData array
       roleData.push(data[i]);
@@ -46,24 +46,9 @@ function addEmployee(callBack) {
       let manager = 0;
 
       // @ToDo FIX ROLE ID SO IT CHANGES WITH CREATED ROLE
-      if (response.title === "Sales Lead") {
-        roleID = 4;
-        manager = 3;
-      } else if (response.title === "Sales Person") {
-        roleID = 5;
-        manager = 3;
-      } else if (response.title === "Lead Copywriter") {
-        roleID = 6;
-        manager = 2;
-      } else if (response.title === "Copywriter") {
-        roleID = 7;
-        manager = 2;
-      } else if (response.title === "Art Director") {
-        roleID = 8;
-        manager = null;
-      } else {
-        role = null;
-        manager = null;
+      for (let j = 0; j < roleData.length; j++) {
+        if(roleData[j].id === )
+        
       }
       const employee = connection.query(
         query,
@@ -131,7 +116,7 @@ function addRole(callBack) {
         }
       }
 
-      // converting the salaray response into an INT to be able to
+      // converting the salary response into an INT to be able to
       // insert into MySQL database
       let salary = parseInt(response.salary);
 
@@ -177,42 +162,41 @@ function addRole(callBack) {
 // ------adding a department------------
 
 function addDepartment(callBack) {
-    let existingDepartments = [];
-    connection.query("SELECT * FROM department", function (err, data) {
-      if (err) console.log(err, " FROM SELECTING TITLES FROM DEPARTMENT");
-      for (let i = 0; i < data.length; i++) {
-        existingDepartments.push(data[i].name);
-      }
-    });
-    inquirer
-      .prompt([
-        {
-          type: "input",
-          name: "title",
-          message: "What Is The Name Of The Department You Want To Add?: ",
-        },
-      ])
-      .then(function (response) {
-  
-        // IF department exists, throw error and return to main menu
-        for (let i = 0; i < existingDepartments.length; i++) {
-          if (existingDepartments[i] === response.title) {
-            console.log("That Department Already Exists");
-            return init();
-          }
+  let existingDepartments = [];
+  connection.query("SELECT * FROM department", function (err, data) {
+    if (err) console.log(err, " FROM SELECTING TITLES FROM DEPARTMENT");
+    for (let i = 0; i < data.length; i++) {
+      existingDepartments.push(data[i].name);
+    }
+  });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "title",
+        message: "What Is The Name Of The Department You Want To Add?: ",
+      },
+    ])
+    .then(function (response) {
+      // IF department exists, throw error and return to main menu
+      for (let i = 0; i < existingDepartments.length; i++) {
+        if (existingDepartments[i] === response.title) {
+          console.log("That Department Already Exists");
+          return init();
         }
-        const query = "INSERT INTO department (name) VALUES (?);";
-  
-        const department = connection.query(
-          query,
-          [response.title],
-          function (err, data) {
-            if (err) console.log(err, " ERROR INSERTING NEW DEPARTMENT");
-            console.log("Added", response.title, "Department");
-            callBack();
-          }
-        );
-      });
-  }
+      }
+      const query = "INSERT INTO department (name) VALUES (?);";
+
+      const department = connection.query(
+        query,
+        [response.title],
+        function (err, data) {
+          if (err) console.log(err, " ERROR INSERTING NEW DEPARTMENT");
+          console.log("Added", response.title, "Department");
+          callBack();
+        }
+      );
+    });
+}
 
 module.exports = { addEmployee, addRole, addDepartment };

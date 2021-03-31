@@ -1,7 +1,7 @@
 const connection = require("./sql")
 const inquirer = require("inquirer");
 // GET EXPORT TO WORK
-const {viewEmployees, viewRoles, viewDepartments } = require("./controllers/view");
+const { viewEmployees } = require("./controllers/view");
 const {addEmployee, addDepartment, addRole} = require("./controllers/create")
 
 
