@@ -10,7 +10,7 @@ function addEmployee(callBack) {
   connection.query("SELECT * FROM role", function (err, data) {
     if (err) console.log(err, " FROM SELECTING ROLES IN addEmployee");
     for (let i = 0; i < data.length; i++) {
-      // Empty roleData everytime it pushes new data  
+      // Empty roleData everytime it pushes new data
       titlesDB.push(data[i].title);
       // Push all role data into global scoped roleData array
       roleData.push(data[i]);
@@ -37,7 +37,6 @@ function addEmployee(callBack) {
       },
     ])
     .then(function (response) {
-      console.log(response);
       const query =
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);";
 
@@ -46,10 +45,9 @@ function addEmployee(callBack) {
 
       // @ToDo HAVE MANAGER ID UPDATE AS WELL
       for (let j = 0; j < roleData.length; j++) {
-        if(roleData[j].title === response.title){
-          roleID = roleData[j].id 
+        if (roleData[j].title === response.title) {
+          roleID = roleData[j].id;
         }
-        
       }
       const employee = connection.query(
         query,
@@ -109,7 +107,7 @@ function addRole(callBack) {
       },
     ])
     .then(function (response) {
-      console.log(response);
+ 
 
       for (let i = 0; i < existingRoles.length; i++) {
         if (existingRoles[i] === response.title) {
@@ -122,31 +120,14 @@ function addRole(callBack) {
       // insert into MySQL database
       let salary = parseInt(response.salary);
 
-      // @ ToDo create For Loop to assign department_ID based on what user chooses instead of hardcoding. WONT SCALE.
 
-      // if response.department === department[j].name
       let department_id = 0;
-      console.log(departmentData)
-        for (let j = 0; j < departmentData.length; j++) {
-          if(departmentData[j].name === response.department){
-            department_id = departmentData[j].id
-          }
-          
+ 
+      for (let j = 0; j < departmentData.length; j++) {
+        if (departmentData[j].name === response.department) {
+          department_id = departmentData[j].id;
         }
-
-      // if (response.department === "Sales") {
-      //   department_id = 1;
-      // } else if (response.department === "Creative") {
-      //   department_id = 2;
-      // } else if (response.department === "Executive") {
-      //   department_id = 3;
-      // } else if (response.department === "Art") {
-      //   department_id = 4;
-      // } else if (response.department === "Communication") {
-      //   department_id = 5;
-      // } else {
-      //   department_id = departmentDB.length - 1;
-      // }
+      }
 
       const query =
         "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);";
