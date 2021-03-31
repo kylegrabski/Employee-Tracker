@@ -47,7 +47,9 @@ function addEmployee(callBack) {
 
       // @ToDo FIX ROLE ID SO IT CHANGES WITH CREATED ROLE
       for (let j = 0; j < roleData.length; j++) {
-        if(roleData[j].id === )
+        if(roleData[j].title === response.title){
+          roleID = roleData[j].id 
+        }
         
       }
       const employee = connection.query(
